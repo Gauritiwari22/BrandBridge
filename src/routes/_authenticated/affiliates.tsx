@@ -124,7 +124,7 @@ function Affiliates() {
             <div className="flex items-center gap-2">
               <Link2 className="h-4 w-4 text-primary" />
               <p className="font-mono text-lg font-bold text-gradient">{c.code}</p>
-              <button className="ml-auto text-muted-foreground hover:text-foreground" onClick={() => { navigator.clipboard.writeText(c.url); toast.success("Copied!"); }}>
+              <button className="ml-auto text-muted-foreground hover:text-foreground" onClick={() => { navigator.clipboard.writeText(c.url ?? ""); toast.success("Copied!"); }}>
                 <Copy className="h-4 w-4" />
               </button>
             </div>

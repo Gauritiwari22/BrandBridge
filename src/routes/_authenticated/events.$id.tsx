@@ -67,7 +67,7 @@ function EventDetail() {
 
   if (!event) return <div className="p-8"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
-  const pct = event.funding_goal > 0 ? Math.min(100, (event.funding_raised / event.funding_goal) * 100) : 0;
+  const pct = (event.funding_goal ?? 0) > 0 ? Math.min(100, ((event.funding_raised ?? 0) / (event.funding_goal ?? 1)) * 100) : 0;
 
   return (
     <div className="mx-auto max-w-5xl p-8">
