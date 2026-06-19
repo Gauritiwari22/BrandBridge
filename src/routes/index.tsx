@@ -1,7 +1,6 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Sparkles, Target, Users, BarChart3, FileSignature, Link2, Shield, GraduationCap, Zap, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -10,10 +9,6 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "AI-powered platform for brand-creator collaborations, campus sponsorships, contracts, and analytics." },
     ],
   }),
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) throw redirect({ to: "/dashboard" });
-  },
   component: Landing,
 });
 
@@ -53,7 +48,7 @@ function Landing() {
         </div>
         <div className="mx-auto max-w-7xl px-6 pt-24 pb-32 text-center">
           <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm text-muted-foreground shadow-card">
-            <Sparkles className="h-3.5 w-3.5 text-primary" /> Powered by Lovable AI
+            <Sparkles className="h-3.5 w-3.5 text-primary" /> Team TechTonic · Vayu × Gauri
           </div>
           <h1 className="mt-6 font-display text-6xl font-bold leading-[1.05] tracking-tight md:text-7xl">
             Where <span className="text-gradient">brands</span> meet <br />
