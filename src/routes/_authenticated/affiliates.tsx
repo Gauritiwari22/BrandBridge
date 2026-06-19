@@ -57,7 +57,7 @@ function Affiliates() {
   const create = async () => {
     if (!user || !creatorId) return toast.error("Pick a creator");
     const creator = creators?.find(c => c.id === creatorId);
-    const code = generateCode(creator?.full_name);
+    const code = generateCode(creator?.full_name ?? undefined);
     const url = `${window.location.origin}/r/${code}`;
     const { error } = await supabase.from("affiliate_codes").insert({
       code, creator_id: creatorId, brand_id: user.id,
