@@ -55,7 +55,7 @@ function Campaigns() {
                   <h3 className="mt-1 font-display text-lg font-bold group-hover:text-primary">{c.title}</h3>
                   <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{c.description}</p>
                   <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />${Number(c.budget).toLocaleString()}</span>
+                    <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />₹{Number(c.budget).toLocaleString()}</span>
                     {c.min_followers ? <span className="flex items-center gap-1"><Target className="h-3 w-3" />{c.min_followers.toLocaleString()}+ followers</span> : null}
                     {c.end_date && <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{c.end_date}</span>}
                   </div>

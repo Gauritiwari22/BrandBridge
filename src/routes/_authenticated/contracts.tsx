@@ -77,7 +77,7 @@ function Contracts() {
                   <p className="mt-1 text-sm text-muted-foreground">Between {c.brand?.brand_name || c.brand?.full_name} and {c.creator?.full_name}</p>
                   <p className="mt-3 text-sm whitespace-pre-wrap">{c.terms}</p>
                   {c.deliverables && <p className="mt-2 text-sm"><b>Deliverables:</b> {c.deliverables}</p>}
-                  <p className="mt-2 text-sm"><b>Amount:</b> ${Number(c.amount).toLocaleString()}{c.due_date ? ` · Due ${c.due_date}` : ""}</p>
+                  <p className="mt-2 text-sm"><b>Amount:</b> ₹{Number(c.amount).toLocaleString()}{c.due_date ? ` · Due ${c.due_date}` : ""}</p>
                   <div className="mt-3 flex gap-4 text-xs">
                     <span className={c.brand_signed_at ? "text-primary font-semibold" : "text-muted-foreground"}>
                       {c.brand_signed_at ? <Check className="inline h-3 w-3" /> : "○"} Brand: {c.brand_signature || "Pending"}

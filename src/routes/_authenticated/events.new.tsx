@@ -57,7 +57,7 @@ function NewEvent() {
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             <div><Label>Expected footfall</Label><Input type="number" value={form.expected_footfall} onChange={onChange("expected_footfall")} /></div>
-            <div><Label>Funding goal (USD)</Label><Input type="number" value={form.funding_goal} onChange={onChange("funding_goal")} /></div>
+            <div><Label>Funding goal (₹)</Label><Input type="number" value={form.funding_goal} onChange={onChange("funding_goal")} /></div>
             <div><Label>Event date</Label><Input type="date" value={form.event_date} onChange={onChange("event_date")} /></div>
           </div>
           <div><Label>Location</Label><Input value={form.location} onChange={onChange("location")} /></div>

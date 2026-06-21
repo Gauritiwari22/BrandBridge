@@ -107,7 +107,7 @@ function CampaignDetail() {
         <h1 className="mt-3 font-display text-4xl font-bold">{campaign.title}</h1>
         <p className="mt-2 text-white/90">by {campaign.brand?.brand_name || campaign.brand?.full_name}</p>
         <div className="mt-6 flex flex-wrap gap-6 text-sm">
-          <span className="flex items-center gap-2"><DollarSign className="h-4 w-4" />${Number(campaign.budget).toLocaleString()}</span>
+          <span className="flex items-center gap-2"><DollarSign className="h-4 w-4" />₹{Number(campaign.budget).toLocaleString()}</span>
           {campaign.min_followers ? <span className="flex items-center gap-2"><Users className="h-4 w-4" />{campaign.min_followers.toLocaleString()}+ followers</span> : null}
           {campaign.min_engagement ? <span className="flex items-center gap-2"><Target className="h-4 w-4" />{campaign.min_engagement}%+ engagement</span> : null}
           {campaign.end_date && <span className="flex items-center gap-2"><Calendar className="h-4 w-4" />Due {campaign.end_date}</span>}
@@ -155,7 +155,7 @@ function CampaignDetail() {
                 <DialogHeader><DialogTitle>Apply to {campaign.title}</DialogTitle></DialogHeader>
                 <div className="space-y-3">
                   <div><Label>Your pitch</Label><Textarea rows={4} value={pitch} onChange={e => setPitch(e.target.value)} placeholder="Why are you the right creator for this?" /></div>
-                  <div><Label>Proposed rate (USD)</Label><Input type="number" value={rate} onChange={e => setRate(e.target.value)} /></div>
+                  <div><Label>Proposed rate (₹)</Label><Input type="number" value={rate} onChange={e => setRate(e.target.value)} /></div>
                   <Button onClick={apply} className="w-full bg-hero-gradient text-white">Send application</Button>
                 </div>
               </DialogContent>
@@ -197,7 +197,7 @@ function CampaignDetail() {
                     <Badge className="capitalize">{a.status}</Badge>
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">{a.pitch}</p>
-                  {a.proposed_rate && <p className="mt-1 text-xs">Rate: ${a.proposed_rate}</p>}
+                  {a.proposed_rate && <p className="mt-1 text-xs">Rate: ₹{a.proposed_rate}</p>}
                 </div>
                 {a.status === "pending" && (
                   <div className="flex gap-2">
