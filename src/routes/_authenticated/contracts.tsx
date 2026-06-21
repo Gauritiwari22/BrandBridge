@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { FileSignature, Check } from "lucide-react";
+import { FileSignature, Check, Printer } from "lucide-react";
+import { inr } from "@/lib/format";
 import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/contracts")({
@@ -38,19 +39,20 @@ function Contracts() {
   const sign = async (c: any) => {
     if (!signature.trim()) return toast.error("Type your full name to sign");
     const isBrand = user?.id === c.brand_id;
+    const alreadySigned = isBrand ? !!c.brand_signed_at : !!c.creator_signed_at;
+    if (alreadySigned) return toast.error("You've already signed this contract");
+
     const updates: any = {};
     if (isBrand) { updates.brand_signature = signature; updates.brand_signed_at = new Date().toISOString(); }
     else { updates.creator_signature = signature; updates.creator_signed_at = new Date().toISOString(); }
 
-    // Status transitions
-    const bSigned = c.brand_signed_at || isBrand;
-    const cSigned = c.creator_signed_at || !isBrand;
-    if (bSigned && cSigned) updates.status = "active";
-    else updates.status = isBrand ? "signed_brand" : "signed_creator";
+    // Active only when BOTH sides have signed
+    const bothSigned = isBrand ? !!c.creator_signed_at : !!c.brand_signed_at;
+    updates.status = bothSigned ? "active" : (isBrand ? "signed_brand" : "signed_creator");
 
     const { error } = await supabase.from("contracts").update(updates).eq("id", c.id);
     if (error) return toast.error(error.message);
-    toast.success("Contract signed!");
+    toast.success(bothSigned ? "Contract is now active!" : "Contract signed — awaiting the other party.");
     setSignature(""); setSigning(null);
     qc.invalidateQueries({ queryKey: ["contracts", user?.id] });
   };
@@ -77,7 +79,7 @@ function Contracts() {
                   <p className="mt-1 text-sm text-muted-foreground">Between {c.brand?.brand_name || c.brand?.full_name} and {c.creator?.full_name}</p>
                   <p className="mt-3 text-sm whitespace-pre-wrap">{c.terms}</p>
                   {c.deliverables && <p className="mt-2 text-sm"><b>Deliverables:</b> {c.deliverables}</p>}
-                  <p className="mt-2 text-sm"><b>Amount:</b> ₹{Number(c.amount).toLocaleString()}{c.due_date ? ` · Due ${c.due_date}` : ""}</p>
+                  <p className="mt-2 text-sm"><b>Amount:</b> {inr(c.amount)}{c.due_date ? ` · Due ${c.due_date}` : ""}</p>
                   <div className="mt-3 flex gap-4 text-xs">
                     <span className={c.brand_signed_at ? "text-primary font-semibold" : "text-muted-foreground"}>
                       {c.brand_signed_at ? <Check className="inline h-3 w-3" /> : "○"} Brand: {c.brand_signature || "Pending"}
@@ -87,17 +89,22 @@ function Contracts() {
                     </span>
                   </div>
                 </div>
-                {!mySigned && (
-                  <Dialog open={signing === c.id} onOpenChange={o => setSigning(o ? c.id : null)}>
-                    <DialogTrigger asChild><Button className="bg-hero-gradient text-white">Sign</Button></DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader><DialogTitle>E-sign contract</DialogTitle></DialogHeader>
-                      <p className="text-sm text-muted-foreground">By typing your full name you legally agree to the terms above.</p>
-                      <div><Label>Type your full name</Label><Input value={signature} onChange={e => setSignature(e.target.value)} placeholder="Jane Doe" /></div>
-                      <Button onClick={() => sign(c)} className="w-full bg-hero-gradient text-white">Sign contract</Button>
-                    </DialogContent>
-                  </Dialog>
-                )}
+                <div className="flex flex-col gap-2">
+                  {!mySigned && (
+                    <Dialog open={signing === c.id} onOpenChange={o => setSigning(o ? c.id : null)}>
+                      <DialogTrigger asChild><Button className="bg-hero-gradient text-white">Sign</Button></DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader><DialogTitle>E-sign contract</DialogTitle></DialogHeader>
+                        <p className="text-sm text-muted-foreground">By typing your full name you legally agree to the terms above.</p>
+                        <div><Label>Type your full name</Label><Input value={signature} onChange={e => setSignature(e.target.value)} placeholder="Jane Doe" /></div>
+                        <Button onClick={() => sign(c)} className="w-full bg-hero-gradient text-white">Sign contract</Button>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                  <Button size="sm" variant="outline" onClick={() => window.open(`/contracts/${c.id}/print`, "_blank")}>
+                    <Printer className="mr-1 h-3 w-3" />Print
+                  </Button>
+                </div>
               </div>
             </Card>
           );

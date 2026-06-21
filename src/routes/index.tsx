@@ -48,7 +48,7 @@ function Landing() {
         </div>
         <div className="mx-auto max-w-7xl px-6 pt-24 pb-32 text-center">
           <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm text-muted-foreground shadow-card">
-            <Sparkles className="h-3.5 w-3.5 text-primary" /> AI-powered collaboration platform
+            <Sparkles className="h-3.5 w-3.5 text-primary" /> AI-Powered Brand Collaboration
           </div>
           <h1 className="mt-6 font-display text-6xl font-bold leading-[1.05] tracking-tight md:text-7xl">
             Where <span className="text-gradient">brands</span> meet <br />

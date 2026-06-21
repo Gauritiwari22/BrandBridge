@@ -63,7 +63,7 @@ Title: ${campaign.title}
 Description: ${campaign.description}
 Target niches: ${(campaign.target_niches ?? []).join(", ")}
 Min followers: ${campaign.min_followers} · Min engagement: ${campaign.min_engagement}%
-Budget: $${campaign.budget}
+Budget: ₹${campaign.budget} (INR)
 
 Creators (JSON): ${JSON.stringify(list)}
 

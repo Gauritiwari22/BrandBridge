@@ -133,7 +133,7 @@ function Affiliates() {
             <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border pt-3 text-center">
               <div><p className="text-xs text-muted-foreground">Clicks</p><p className="font-display text-xl font-bold">{c.clicks}</p></div>
               <div><p className="text-xs text-muted-foreground">Conversions</p><p className="font-display text-xl font-bold">{c.conversions}</p></div>
-              <div><p className="text-xs text-muted-foreground">Revenue</p><p className="font-display text-xl font-bold text-gradient">₹{Number(c.revenue).toLocaleString()}</p></div>
+              <div><p className="text-xs text-muted-foreground">Revenue</p><p className="font-display text-xl font-bold text-gradient">₹{Number(c.revenue).toLocaleString("en-IN")}</p></div>
             </div>
             <Button size="sm" variant="outline" className="mt-3 w-full" onClick={() => simulateClick(c.id)}>Simulate click</Button>
           </Card>

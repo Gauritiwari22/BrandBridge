@@ -5,7 +5,8 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Calendar, DollarSign, Target } from "lucide-react";
+import { Plus, Calendar, IndianRupee, Target } from "lucide-react";
+import { inr } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/campaigns/")({
   head: () => ({ meta: [{ title: "Campaigns · BrandBridge" }] }),
@@ -13,14 +14,20 @@ export const Route = createFileRoute("/_authenticated/campaigns/")({
 });
 
 function Campaigns() {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const { data: campaigns, isLoading } = useQuery({
-    queryKey: ["campaigns"],
+    queryKey: ["campaigns", user?.id, profile?.role],
     queryFn: async () => {
-      const { data, error } = await supabase.from("campaigns").select("*, brand:profiles!brand_id(full_name, brand_name, avatar_url)").order("created_at", { ascending: false });
+      let q = supabase.from("campaigns").select("*, brand:profiles!brand_id(full_name, brand_name, avatar_url)").order("created_at", { ascending: false });
+      // Brands see their own + everything, others only see active campaigns
+      if (profile?.role && profile.role !== "brand") {
+        q = q.in("status", ["open", "in_progress"]);
+      }
+      const { data, error } = await q;
       if (error) throw error;
       return data;
     },
+    enabled: !!profile,
   });
 
   return (
@@ -55,7 +62,7 @@ function Campaigns() {
                   <h3 className="mt-1 font-display text-lg font-bold group-hover:text-primary">{c.title}</h3>
                   <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{c.description}</p>
                   <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />₹{Number(c.budget).toLocaleString()}</span>
+                    <span className="flex items-center gap-1"><IndianRupee className="h-3 w-3" />{Number(c.budget).toLocaleString("en-IN")}</span>
                     {c.min_followers ? <span className="flex items-center gap-1"><Target className="h-3 w-3" />{c.min_followers.toLocaleString()}+ followers</span> : null}
                     {c.end_date && <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{c.end_date}</span>}
                   </div>

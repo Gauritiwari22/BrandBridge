@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell, Legend } from "recharts";
 import { toast } from "sonner";
-import { TrendingUp, MousePointer, DollarSign, Target } from "lucide-react";
+import { TrendingUp, MousePointer, IndianRupee, Target } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/analytics")({
   head: () => ({ meta: [{ title: "Analytics · BrandBridge" }] }),
@@ -92,7 +92,7 @@ function Analytics() {
           { icon: TrendingUp, label: "Total Reach", value: (totals?.reach ?? 0).toLocaleString() },
           { icon: Target, label: "Engagements", value: (totals?.engagements ?? 0).toLocaleString() },
           { icon: MousePointer, label: "Conversions", value: (totals?.conversions ?? 0).toLocaleString() },
-          { icon: DollarSign, label: "Cost / Engage", value: `$${cpe}` },
+          { icon: IndianRupee, label: "Cost / Engage", value: `₹${cpe}` },
         ].map(s => (
           <Card key={s.label} className="p-5">
             <div className="flex items-start justify-between">
