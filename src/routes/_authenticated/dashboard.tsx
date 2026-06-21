@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
-import { Megaphone, Users, GraduationCap, FileSignature, Sparkles, TrendingUp, ArrowRight } from "lucide-react";
+import { Megaphone, Users, GraduationCap, FileSignature, Sparkles, TrendingUp, ArrowRight, MessageSquare } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -98,6 +98,7 @@ function Dashboard() {
           <h3 className="font-display text-lg font-bold">Quick actions</h3>
           <div className="mt-4 grid gap-2">
             <Link to="/ai-studio" className="rounded-lg border border-border p-3 text-sm font-medium transition hover:bg-accent/30">✨ Generate content with AI</Link>
+            <Link to="/messages" className="rounded-lg border border-border p-3 text-sm font-medium transition hover:bg-accent/30">💬 Open inbox</Link>
             <Link to="/analytics" className="rounded-lg border border-border p-3 text-sm font-medium transition hover:bg-accent/30">📊 View analytics</Link>
             <Link to="/affiliates" className="rounded-lg border border-border p-3 text-sm font-medium transition hover:bg-accent/30">🔗 Manage affiliate codes</Link>
           </div>

@@ -66,7 +66,7 @@ function NewCampaign() {
           <div><Label>Description</Label><Textarea rows={4} value={form.description} onChange={onChange("description")} placeholder="What's the campaign about?" /></div>
           <div className="grid gap-4 md:grid-cols-2">
             <div><Label>Category</Label><Input value={form.category} onChange={onChange("category")} placeholder="Tech / Fashion / Food" /></div>
-            <div><Label>Budget (USD) *</Label><Input required type="number" min="0" value={form.budget} onChange={onChange("budget")} /></div>
+            <div><Label>Budget (₹ INR) *</Label><Input required type="number" min="0" value={form.budget} onChange={onChange("budget")} /></div>
           </div>
           <div><Label>Target niches (comma separated)</Label><Input value={form.target_niches} onChange={onChange("target_niches")} placeholder="tech, gadgets, lifestyle" /></div>
           <div className="grid gap-4 md:grid-cols-2">

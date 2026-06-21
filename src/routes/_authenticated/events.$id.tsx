@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { GraduationCap, Users, Calendar, MapPin, Loader2, Check, X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/events/$id")({
+  head: () => ({ meta: [{ title: "Event · BrandBridge" }] }),
   component: EventDetail,
 });
 
@@ -91,8 +92,8 @@ function EventDetail() {
         </Card>
         <Card className="p-6">
           <h3 className="font-display text-lg font-bold">Funding</h3>
-          <p className="mt-2 font-display text-3xl font-bold text-gradient">${Number(event.funding_raised).toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground">of ${Number(event.funding_goal).toLocaleString()} goal</p>
+          <p className="mt-2 font-display text-3xl font-bold text-gradient">₹{Number(event.funding_raised).toLocaleString("en-IN")}</p>
+          <p className="text-xs text-muted-foreground">of ₹{Number(event.funding_goal).toLocaleString("en-IN")} goal</p>
           <div className="mt-3 h-2 rounded-full bg-muted"><div className="h-full rounded-full bg-hero-gradient" style={{ width: `${pct}%` }} /></div>
           {!isOrganizer && profile?.role === "brand" && (
             <Dialog>
@@ -100,7 +101,7 @@ function EventDetail() {
               <DialogContent>
                 <DialogHeader><DialogTitle>Sponsor {event.title}</DialogTitle></DialogHeader>
                 <div className="space-y-3">
-                  <div><Label>Amount (USD)</Label><Input type="number" value={amount} onChange={e => setAmount(e.target.value)} /></div>
+                  <div><Label>Amount (₹ INR)</Label><Input type="number" value={amount} onChange={e => setAmount(e.target.value)} /></div>
                   <div><Label>Tier</Label><Input value={tier} onChange={e => setTier(e.target.value)} /></div>
                   <div><Label>Message</Label><Textarea rows={3} value={message} onChange={e => setMessage(e.target.value)} /></div>
                   <Button onClick={offerSponsorship} className="w-full bg-hero-gradient text-white">Send offer</Button>
@@ -123,7 +124,7 @@ function EventDetail() {
                     <Badge>{s.tier}</Badge>
                     <Badge variant="outline" className="capitalize">{s.status}</Badge>
                   </div>
-                  <p className="mt-1 text-sm">${Number(s.offer_amount).toLocaleString()}</p>
+                  <p className="mt-1 text-sm">₹{Number(s.offer_amount).toLocaleString("en-IN")}</p>
                   <p className="mt-1 text-sm text-muted-foreground">{s.message}</p>
                 </div>
                 {isOrganizer && s.status === "proposed" && (
