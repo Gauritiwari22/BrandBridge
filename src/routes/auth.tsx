@@ -62,7 +62,7 @@ function AuthPage() {
             <h2 className="font-display text-5xl font-bold leading-tight">The matchmaking layer for the creator economy.</h2>
             <p className="mt-4 max-w-md text-white/85">AI-powered partnerships across brands, influencers, student ambassadors, and campus events.</p>
           </div>
-          <p className="text-sm text-white/70">© 2026 BrandBridge AI</p>
+          <p className="text-sm text-white/70">© 2026 Team TechTonic</p>
         </div>
       </div>
 
