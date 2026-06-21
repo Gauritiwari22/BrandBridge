@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,10 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Sign in · BrandBridge AI" }] }),
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) throw redirect({ to: "/dashboard" });
+  },
   component: AuthPage,
 });
 
@@ -58,7 +62,7 @@ function AuthPage() {
             <h2 className="font-display text-5xl font-bold leading-tight">The matchmaking layer for the creator economy.</h2>
             <p className="mt-4 max-w-md text-white/85">AI-powered partnerships across brands, influencers, student ambassadors, and campus events.</p>
           </div>
-          <p className="text-sm text-white/70">© 2026 BrandBridge AI</p>
+          <p className="text-sm text-white/70">© 2026 Team TechTonic</p>
         </div>
       </div>
 

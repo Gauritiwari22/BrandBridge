@@ -62,7 +62,7 @@ function Events() {
                       <div className="h-2 rounded-full bg-muted">
                         <div className="h-full rounded-full bg-hero-gradient" style={{ width: `${pct}%` }} />
                       </div>
-                      <p className="mt-1 text-xs text-muted-foreground">₹{Number(e.funding_raised).toLocaleString()} / ₹{Number(e.funding_goal).toLocaleString()} raised</p>
+                      <p className="mt-1 text-xs text-muted-foreground">${Number(e.funding_raised).toLocaleString()} / ${Number(e.funding_goal).toLocaleString()} raised</p>
                     </div>
                   )}
                 </Card>
