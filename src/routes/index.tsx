@@ -99,7 +99,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        © 2026 BrandBridge AI · Built by Team TechTonic
+        © 2026 BrandBridge AI
       </footer>
     </div>
   );
