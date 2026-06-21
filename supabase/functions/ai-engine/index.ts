@@ -78,34 +78,74 @@ Score each creator 0-100 on niche overlap (30), audience size (25), engagement q
     }
 
     if (action === "trust") {
-      const { profile } = body;
-      // Heuristic + AI hybrid score
+      const { profile, connections } = body;
+      // connections = rows from social_connections for this user (real OAuth data), if any.
+      const hasLiveConnection = Array.isArray(connections) && connections.length > 0;
+
+      // Profile-completeness base score (kept from the original heuristic)
       let trust = 30;
       if (profile.bio) trust += 10;
       if (profile.avatar_url) trust += 5;
       if (profile.college) trust += 5;
       if (profile.niche?.length) trust += 5;
-      if (profile.instagram || profile.youtube || profile.twitter || profile.linkedin) trust += 10;
       if (profile.verified) trust += 15;
-      if ((profile.followers ?? 0) > 1000) trust += 10;
-      if ((profile.engagement_rate ?? 0) > 2) trust += 10;
+
+      // Live-data bonus: a verified OAuth connection is worth far more than a typed-in handle
+      if (hasLiveConnection) trust += 20;
+      else if (profile.instagram || profile.youtube || profile.twitter || profile.linkedin) trust += 5;
+
+      // Prefer real connection numbers over manually-entered profile fields
+      const f = hasLiveConnection
+        ? Math.max(...connections.map((c: any) => c.follower_count ?? 0))
+        : Number(profile.followers ?? 0);
+      const e = hasLiveConnection
+        ? connections.reduce((sum: number, c: any) => sum + (c.engagement_rate ?? 0), 0) / connections.length
+        : Number(profile.engagement_rate ?? 0);
+
+      if (f > 1000) trust += 10;
+      if (e > 2) trust += 10;
 
       // Authenticity: engagement-to-follower sanity check
       let auth = 50;
-      const f = Number(profile.followers ?? 0);
-      const e = Number(profile.engagement_rate ?? 0);
       if (f > 0) {
         if (e >= 2 && e <= 8) auth = 85;
         else if (e > 8) auth = 60;
         else if (e < 1) auth = 35;
         else auth = 70;
       }
-      if (f > 100000 && e < 1) auth -= 20; // suspicious
+      if (f > 100000 && e < 1) auth -= 20; // suspicious: huge audience, near-zero engagement
 
-      trust = Math.max(0, Math.min(100, trust));
-      auth = Math.max(0, Math.min(100, auth));
+      // If we have real data, ask the AI model to sanity-check it in plain terms and
+      // nudge authenticity based on patterns a fixed formula would miss (e.g. media_count
+      // vs account age, oddly uniform engagement, etc.)
+      let aiNote = "";
+      if (hasLiveConnection) {
+        try {
+          const summary = connections.map((c: any) => ({
+            provider: c.provider, followers: c.follower_count,
+            engagement_rate: c.engagement_rate, media_count: c.media_count,
+          }));
+          const raw = await callAI([
+            { role: "system", content: "You are an authenticity analyst for an influencer marketing platform. Return ONLY valid JSON." },
+            { role: "user", content:
+              `Given this creator's live, OAuth-verified social data: ${JSON.stringify(summary)}\n` +
+              `Bio: ${profile.bio ?? "(none)"}\n` +
+              `Assess authenticity risk (e.g. engagement implausibly low or high for follower count, too little content history). ` +
+              `Return JSON: { "adjustment": number between -15 and 15, "note": "one short sentence" }`,
+            },
+          ], true);
+          const parsed = JSON.parse(raw);
+          auth += Math.max(-15, Math.min(15, Number(parsed.adjustment) || 0));
+          aiNote = parsed.note ?? "";
+        } catch {
+          // AI nudge is best-effort; numeric score above still stands without it.
+        }
+      }
 
-      return new Response(JSON.stringify({ trust_score: trust, authenticity_score: auth }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      trust = Math.max(0, Math.min(100, Math.round(trust)));
+      auth = Math.max(0, Math.min(100, Math.round(auth)));
+
+      return new Response(JSON.stringify({ trust_score: trust, authenticity_score: auth, ai_note: aiNote, verified_data: hasLiveConnection }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     return new Response(JSON.stringify({ error: "Unknown action" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });

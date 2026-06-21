@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Instagram, Youtube, Twitter, Shield, TrendingUp } from "lucide-react";
+import { Instagram, Youtube, Twitter, Shield, TrendingUp, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/creators")({
   head: () => ({ meta: [{ title: "Creators · BrandBridge" }] }),
@@ -17,8 +17,8 @@ function Creators() {
   const { data: creators } = useQuery({
     queryKey: ["creators"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("*").in("role", ["influencer", "student", "business"]).order("trust_score", { ascending: false });
-      return data ?? [];
+      const { data } = await supabase.from("profiles").select("*, social_connections_public(*)").in("role", ["influencer", "student", "business"]).order("trust_score", { ascending: false });
+      return (data ?? []).map((c: any) => ({ ...c, social_connections: c.social_connections_public }));
     },
   });
 
@@ -60,7 +60,14 @@ function Creators() {
               <div><p className="text-xs text-muted-foreground">Trust</p><p className="font-bold text-gradient">{c.trust_score ?? 50}</p></div>
             </div>
             <div className="mt-3 flex gap-2 text-muted-foreground">
-              {c.instagram && <Instagram className="h-4 w-4" />}
+              {c.instagram && (
+                <span className="flex items-center gap-0.5">
+                  <Instagram className="h-4 w-4" />
+                  {c.social_connections?.some((s: any) => s.provider === "instagram") && (
+                    <CheckCircle2 className="h-3 w-3 text-green-500" />
+                  )}
+                </span>
+              )}
               {c.youtube && <Youtube className="h-4 w-4" />}
               {c.twitter && <Twitter className="h-4 w-4" />}
             </div>

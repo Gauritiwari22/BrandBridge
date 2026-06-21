@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Sparkles, Shield } from "lucide-react";
+import { Loader2, Sparkles, Shield, Instagram, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile · BrandBridge" }] }),
@@ -20,6 +20,8 @@ function ProfilePage() {
   const { profile, refreshProfile, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
+  const [connectLoading, setConnectLoading] = useState(false);
+  const [connections, setConnections] = useState<any[]>([]);
   const [form, setForm] = useState<any>({});
 
   useEffect(() => {
@@ -29,6 +31,50 @@ function ProfilePage() {
       skills: profile.skills?.join(", ") ?? "",
     });
   }, [profile]);
+
+  const loadConnections = async () => {
+    if (!user) return;
+    const { data } = await supabase.from("social_connections").select("*").eq("user_id", user.id);
+    setConnections(data ?? []);
+  };
+
+  useEffect(() => { loadConnections(); }, [user]);
+
+  // Handle the redirect back from Instagram OAuth: /profile?connected=instagram(&error=...)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const connected = params.get("connected");
+    const error = params.get("error");
+    if (connected) {
+      if (error) toast.error(`Couldn't connect Instagram: ${error}`);
+      else { toast.success("Instagram connected!"); loadConnections(); refreshProfile(); }
+      // Clean the URL so refreshing doesn't re-trigger the toast
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
+  const connectInstagram = async () => {
+    if (!user) return;
+    setConnectLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("instagram-oauth?step=start", {
+        body: { user_id: user.id },
+      });
+      if (error) throw error;
+      window.location.href = data.auth_url; // hand off to Meta's login screen
+    } catch (e: any) {
+      toast.error(e.message);
+      setConnectLoading(false);
+    }
+  };
+
+  const disconnect = async (provider: string) => {
+    if (!user) return;
+    const { error } = await supabase.from("social_connections").delete().eq("user_id", user.id).eq("provider", provider);
+    if (error) return toast.error(error.message);
+    toast.success(`${provider} disconnected`);
+    loadConnections();
+  };
 
   const onChange = (k: string) => (e: any) => setForm({ ...form, [k]: e.target.value });
 
@@ -53,10 +99,10 @@ function ProfilePage() {
   const computeTrust = async () => {
     setAiLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("ai-engine", { body: { action: "trust", profile: form } });
+      const { data, error } = await supabase.functions.invoke("ai-engine", { body: { action: "trust", profile: form, connections } });
       if (error) throw error;
       setForm({ ...form, trust_score: data.trust_score, authenticity_score: data.authenticity_score });
-      toast.success(`Trust ${data.trust_score} · Authenticity ${data.authenticity_score}`);
+      toast.success(`Trust ${data.trust_score} · Authenticity ${data.authenticity_score}${data.ai_note ? ` — ${data.ai_note}` : ""}`);
     } catch (e: any) { toast.error(e.message); }
     setAiLoading(false);
   };
@@ -78,6 +124,33 @@ function ProfilePage() {
           <Button size="sm" variant="outline" onClick={computeTrust} disabled={aiLoading}>
             {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Sparkles className="mr-1 h-4 w-4" />Compute</>}
           </Button>
+        </div>
+      </Card>
+
+      <Card className="mt-6 p-6">
+        <p className="text-sm font-semibold">Connected accounts</p>
+        <p className="text-xs text-muted-foreground">Link your real social accounts so brands see verified, live stats instead of self-reported numbers.</p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          {connections.find(c => c.provider === "instagram") ? (
+            <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+              <Instagram className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium flex items-center gap-1">
+                  @{connections.find(c => c.provider === "instagram")?.username}
+                  <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {(connections.find(c => c.provider === "instagram")?.follower_count ?? 0).toLocaleString()} followers · {connections.find(c => c.provider === "instagram")?.engagement_rate ?? 0}% engagement
+                </p>
+              </div>
+              <Button size="sm" variant="ghost" onClick={() => disconnect("instagram")}>Disconnect</Button>
+            </div>
+          ) : (
+            <Button variant="outline" onClick={connectInstagram} disabled={connectLoading}>
+              {connectLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Instagram className="mr-2 h-4 w-4" />Connect Instagram</>}
+            </Button>
+          )}
+          {/* YouTube and Twitter/X connect buttons go here once those providers are wired up */}
         </div>
       </Card>
 
